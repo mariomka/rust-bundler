@@ -21,7 +21,6 @@ fn get_metadata<P: AsRef<Path>>(package_path: P) -> cargo_metadata::Metadata{
 pub fn bundle<P: AsRef<Path>>(package_path: P) -> String {
     let metadata = get_metadata(package_path);
     let targets: &[cargo_metadata::Target] = &metadata.root_package().unwrap().targets;
-
     let bins: Vec<_> = targets.iter().filter(|t| target_is(t, "bin")).collect();
 
     assert!(bins.len() != 0, "no binary target found");
@@ -30,17 +29,13 @@ pub fn bundle<P: AsRef<Path>>(package_path: P) -> String {
     let libs: Vec<_> = targets.iter().filter(|t| target_is(t, "lib")).collect();
     assert!(libs.len() <= 1, "multiple library targets not supported");
     let lib = libs.get(0).unwrap_or(&bin);
-
     let base_path = Path::new(&lib.src_path)
         .parent()
         .expect("lib.src_path has no parent");
-    println!("{:?}", base_path);
-
     let crate_name = &lib.name;
     eprintln!("expanding binary {:?}", bin.src_path);
     let code = read_file(&Path::new(&bin.src_path)).expect("failed to read binary target source");
-    let mut file: syn::File = syn::parse_file(&code).expect("failed to parse binary target source");
-
+    let mut file = syn::parse_file(&code).expect("failed to parse binary target source");
     Expander {
         base_path,
         crate_name,
