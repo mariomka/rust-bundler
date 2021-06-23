@@ -4,7 +4,7 @@ use std::io::Read;
 use std::mem;
 use std::path::Path;
 
-use syn::export::ToTokens;
+// use syn::export::ToTokens;
 use syn::punctuated::Punctuated;
 use syn::visit_mut::VisitMut;
 
@@ -12,29 +12,30 @@ use syn::visit_mut::VisitMut;
 pub fn bundle<P: AsRef<Path>>(package_path: P) -> String {
     let manifest_path = package_path.as_ref().join("Cargo.toml");
     let mut cmd = cargo_metadata::MetadataCommand::new();
-    cmd.manifest_path(&manifest_path);
-    let metadata = cmd.exec().unwrap();
-    let targets = &metadata.root_package().unwrap().targets;
-    let bins: Vec<_> = targets.iter().filter(|t| target_is(t, "bin")).collect();
-    assert!(bins.len() != 0, "no binary target found");
-    assert!(bins.len() == 1, "multiple binary targets not supported");
-    let bin = bins[0];
-    let libs: Vec<_> = targets.iter().filter(|t| target_is(t, "lib")).collect();
-    assert!(libs.len() <= 1, "multiple library targets not supported");
-    let lib = libs.get(0).unwrap_or(&bin);
-    let base_path = Path::new(&lib.src_path)
-        .parent()
-        .expect("lib.src_path has no parent");
-    let crate_name = &lib.name;
-    eprintln!("expanding binary {:?}", bin.src_path);
-    let code = read_file(&Path::new(&bin.src_path)).expect("failed to read binary target source");
-    let mut file = syn::parse_file(&code).expect("failed to parse binary target source");
-    Expander {
-        base_path,
-        crate_name,
-    }.visit_file_mut(&mut file);
-    let code = file.into_token_stream().to_string();
-    prettify(code)
+    // cmd.manifest_path(&manifest_path);
+    // let metadata = cmd.exec().unwrap();
+    // let targets = &metadata.root_package().unwrap().targets;
+    // let bins: Vec<_> = targets.iter().filter(|t| target_is(t, "bin")).collect();
+    // assert!(bins.len() != 0, "no binary target found");
+    // assert!(bins.len() == 1, "multiple binary targets not supported");
+    // let bin = bins[0];
+    // let libs: Vec<_> = targets.iter().filter(|t| target_is(t, "lib")).collect();
+    // assert!(libs.len() <= 1, "multiple library targets not supported");
+    // let lib = libs.get(0).unwrap_or(&bin);
+    // let base_path = Path::new(&lib.src_path)
+    //     .parent()
+    //     .expect("lib.src_path has no parent");
+    // let crate_name = &lib.name;
+    // eprintln!("expanding binary {:?}", bin.src_path);
+    // let code = read_file(&Path::new(&bin.src_path)).expect("failed to read binary target source");
+    // let mut file = syn::parse_file(&code).expect("failed to parse binary target source");
+    // Expander {
+    //     base_path,
+    //     crate_name,
+    // }.visit_file_mut(&mut file);
+    // let code = file.into_token_stream().to_string();
+    // prettify(code)
+    return "Dummy".to_string();
 }
 
 fn target_is(target: &cargo_metadata::Target, target_kind: &str) -> bool {
