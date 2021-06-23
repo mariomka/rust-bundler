@@ -4,7 +4,9 @@ use std::io::Read;
 use std::mem;
 use std::path::Path;
 
-// use syn::export::ToTokens;
+// use syn::ToTokens;
+use syn::__private::ToTokens;
+
 use syn::punctuated::Punctuated;
 use syn::visit_mut::VisitMut;
 
@@ -43,9 +45,8 @@ pub fn bundle<P: AsRef<Path>>(package_path: P) -> String {
         base_path,
         crate_name,
     }.visit_file_mut(&mut file);
-    // let code = file.into_token_stream().to_string();
-    // prettify(code)
-    return "Dummy".to_string();
+    let code = file.into_token_stream().to_string();
+    prettify(code)
 }
 
 fn target_is(target: &cargo_metadata::Target, target_kind: &str) -> bool {
