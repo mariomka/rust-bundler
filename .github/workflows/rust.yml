@@ -22,4 +22,6 @@ jobs:
         run: cargo test --verbose
       - name: Bench
         run: cargo bench --verbose
+      - name: Install
+        run: cargo install --path .
 
