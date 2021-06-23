@@ -1,12 +1,10 @@
 //! See [README.md](https://github.com/slava-sh/rust-bundler/blob/master/README.md)
-
 use std::io::Read;
 use std::mem;
 use std::path::Path;
 
 // use syn::ToTokens;
 use syn::__private::ToTokens;
-
 use syn::punctuated::Punctuated;
 use syn::visit_mut::VisitMut;
 
@@ -22,7 +20,6 @@ pub fn bundle<P: AsRef<Path>>(package_path: P) -> String {
     let metadata = get_metadata(package_path);
     let targets: &[cargo_metadata::Target] = &metadata.root_package().unwrap().targets;
     let bins: Vec<_> = targets.iter().filter(|t| target_is(t, "bin")).collect();
-
     assert!(bins.len() != 0, "no binary target found");
     assert!(bins.len() == 1, "multiple binary targets not supported");
     let bin = bins[0];
