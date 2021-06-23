@@ -1,5 +1,5 @@
 //! See [README.md](https://github.com/slava-sh/rust-bundler/blob/master/README.md)
-use std::fs::File;
+
 use std::io::Read;
 use std::mem;
 use std::path::Path;
@@ -18,21 +18,27 @@ fn get_metadata<P: AsRef<Path>>(package_path: P) -> cargo_metadata::Metadata{
 /// Creates a single-source-file version of a Cargo package.
 pub fn bundle<P: AsRef<Path>>(package_path: P) -> String {
     let metadata = get_metadata(package_path);
-    // let targets = &metadata.root_package().unwrap().targets;
-    // let bins: Vec<_> = targets.iter().filter(|t| target_is(t, "bin")).collect();
-    // assert!(bins.len() != 0, "no binary target found");
-    // assert!(bins.len() == 1, "multiple binary targets not supported");
-    // let bin = bins[0];
-    // let libs: Vec<_> = targets.iter().filter(|t| target_is(t, "lib")).collect();
-    // assert!(libs.len() <= 1, "multiple library targets not supported");
-    // let lib = libs.get(0).unwrap_or(&bin);
-    // let base_path = Path::new(&lib.src_path)
-    //     .parent()
-    //     .expect("lib.src_path has no parent");
-    // let crate_name = &lib.name;
-    // eprintln!("expanding binary {:?}", bin.src_path);
-    // let code = read_file(&Path::new(&bin.src_path)).expect("failed to read binary target source");
-    // let mut file = syn::parse_file(&code).expect("failed to parse binary target source");
+    let targets: &[cargo_metadata::Target] = &metadata.root_package().unwrap().targets;
+
+    let bins: Vec<_> = targets.iter().filter(|t| target_is(t, "bin")).collect();
+
+    assert!(bins.len() != 0, "no binary target found");
+    assert!(bins.len() == 1, "multiple binary targets not supported");
+    let bin = bins[0];
+    let libs: Vec<_> = targets.iter().filter(|t| target_is(t, "lib")).collect();
+    assert!(libs.len() <= 1, "multiple library targets not supported");
+    let lib = libs.get(0).unwrap_or(&bin);
+
+    let base_path = Path::new(&lib.src_path)
+        .parent()
+        .expect("lib.src_path has no parent");
+    println!("{:?}", base_path);
+
+    let crate_name = &lib.name;
+    eprintln!("expanding binary {:?}", bin.src_path);
+    let code = read_file(&Path::new(&bin.src_path)).expect("failed to read binary target source");
+    println!("{}", code);
+    let mut file = syn::parse_file(&code).expect("failed to parse binary target source");
     // Expander {
     //     base_path,
     //     crate_name,
@@ -187,7 +193,7 @@ fn is_use_path(item: &syn::Item, first_segment: &str) -> bool {
 
 fn read_file(path: &Path) -> Option<String> {
     let mut buf = String::new();
-    File::open(path).ok()?.read_to_string(&mut buf).ok()?;
+    std::fs::File::open(path).ok()?.read_to_string(&mut buf).ok()?;
     Some(buf)
 }
 
