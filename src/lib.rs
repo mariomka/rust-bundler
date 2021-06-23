@@ -8,12 +8,16 @@ use std::path::Path;
 use syn::punctuated::Punctuated;
 use syn::visit_mut::VisitMut;
 
-/// Creates a single-source-file version of a Cargo package.
-pub fn bundle<P: AsRef<Path>>(package_path: P) -> String {
+fn get_metadata<P: AsRef<Path>>(package_path: P) -> cargo_metadata::Metadata{
     let manifest_path = package_path.as_ref().join("Cargo.toml");
     let mut cmd = cargo_metadata::MetadataCommand::new();
-    // cmd.manifest_path(&manifest_path);
-    // let metadata = cmd.exec().unwrap();
+    cmd.manifest_path(&manifest_path);
+    let metadata = cmd.exec().unwrap();
+    metadata
+}
+/// Creates a single-source-file version of a Cargo package.
+pub fn bundle<P: AsRef<Path>>(package_path: P) -> String {
+    let metadata = get_metadata(package_path);
     // let targets = &metadata.root_package().unwrap().targets;
     // let bins: Vec<_> = targets.iter().filter(|t| target_is(t, "bin")).collect();
     // assert!(bins.len() != 0, "no binary target found");
