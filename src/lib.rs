@@ -37,12 +37,12 @@ pub fn bundle<P: AsRef<Path>>(package_path: P) -> String {
     let crate_name = &lib.name;
     eprintln!("expanding binary {:?}", bin.src_path);
     let code = read_file(&Path::new(&bin.src_path)).expect("failed to read binary target source");
-    println!("{}", code);
-    let mut file = syn::parse_file(&code).expect("failed to parse binary target source");
-    // Expander {
-    //     base_path,
-    //     crate_name,
-    // }.visit_file_mut(&mut file);
+    let mut file: syn::File = syn::parse_file(&code).expect("failed to parse binary target source");
+
+    Expander {
+        base_path,
+        crate_name,
+    }.visit_file_mut(&mut file);
     // let code = file.into_token_stream().to_string();
     // prettify(code)
     return "Dummy".to_string();
